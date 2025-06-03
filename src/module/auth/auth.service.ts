@@ -1,28 +1,22 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import { AuthRepository } from "./auth.repository";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
+    private authRepo: AuthRepository,
     private jwtService: JwtService,
   ) {}
 
   async register(email: string, password: string) {
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    return this.prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
+    return this.authRepo.createUser(email, hashedPassword);
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({ where: { email } });
+    const user = await this.authRepo.findUserByEmail(email);
     if (!user) return null;
 
     const passwordValid = await bcrypt.compare(password, user.password);
@@ -49,13 +43,11 @@ export class AuthService {
 
     const hashedRefreshToken = await bcrypt.hash(refresh_token, 10);
 
-    await this.prisma.refreshToken.create({
-      data: {
-        token: hashedRefreshToken,
-        expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-        userId: user.id,
-      },
-    });
+    await this.authRepo.createRefreshToken(
+      user.id,
+      hashedRefreshToken,
+      new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    );
 
     return {
       access_token,
@@ -68,10 +60,7 @@ export class AuthService {
   }
 
   async refreshToken(userId: string, refreshToken: string) {
-    const tokens = await this.prisma.refreshToken.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-    });
+    const tokens = await this.authRepo.findRefreshTokensByUserId(userId);
 
     if (!tokens.length) {
       throw new UnauthorizedException("Refresh token not found");
@@ -91,7 +80,7 @@ export class AuthService {
       throw new UnauthorizedException("Invalid or expired refresh token");
     }
 
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.authRepo.findUserById(userId);
     if (!user) {
       throw new UnauthorizedException("User not found");
     }
@@ -108,17 +97,13 @@ export class AuthService {
 
     const hashedNewRefreshToken = await bcrypt.hash(new_refresh_token, 10);
 
-    await this.prisma.refreshToken.create({
-      data: {
-        token: hashedNewRefreshToken,
-        expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-        userId: user.id,
-      },
-    });
+    await this.authRepo.createRefreshToken(
+      user.id,
+      hashedNewRefreshToken,
+      new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    );
 
-    await this.prisma.refreshToken.delete({
-      where: { id: validToken.id },
-    });
+    await this.authRepo.deleteRefreshToken(validToken.id);
 
     return {
       access_token,
