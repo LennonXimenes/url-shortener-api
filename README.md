@@ -132,12 +132,9 @@ npm run test:watch
 
 ## Pontos de melhoria e escalabilidade
 
-- Implementar observabilidade real (logs estruturados, métricas)
-- Configurar CI/CD (GitHub Actions)
 - Deploy com Kubernetes e Terraform para ambiente de produção
 - Suporte multi-tenant para múltiplos clientes
 - API Gateway com KrankeD para arquitetura de microsserviços
-- Hooks pré-commit/pre-push para garantir qualidade do código
 
 ---
 
