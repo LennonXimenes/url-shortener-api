@@ -3,7 +3,7 @@ import { UrlController } from "./url.controller";
 import { UrlService } from "./url.service";
 import { CreateUrlDto } from "./dto/create-url.dto";
 import { UpdateUrlDto } from "./dto/update-url.dto";
-import { RequestWithUser } from "src/common/types/request-with-user";
+import { iRequestWithUser } from "src/common/types/request-with-user";
 
 describe("UrlController", () => {
   let controller: UrlController;
@@ -44,7 +44,7 @@ describe("UrlController", () => {
 
       (service.create as jest.Mock).mockResolvedValue(mockResult);
 
-      const mockReq = { user: mockUser } as RequestWithUser;
+      const mockReq = { user: mockUser } as iRequestWithUser;
       const result = await controller.create(createDto, mockReq);
 
       expect(service.create).toHaveBeenCalledWith(createDto, mockUser.userId);
@@ -61,7 +61,7 @@ describe("UrlController", () => {
 
       (service.update as jest.Mock).mockResolvedValue(mockResult);
 
-      const mockReq = { user: mockUser } as RequestWithUser;
+      const mockReq = { user: mockUser } as iRequestWithUser;
 
       const result = await controller.update(id, updateDto, mockReq);
 
@@ -81,7 +81,7 @@ describe("UrlController", () => {
 
       (service.findAllByUser as jest.Mock).mockResolvedValue(mockUrls);
 
-      const mockReq = { user: mockUser } as RequestWithUser;
+      const mockReq = { user: mockUser } as iRequestWithUser;
 
       const result = await controller.findAllByUser(mockReq);
 
@@ -98,7 +98,7 @@ describe("UrlController", () => {
 
       (service.softDelete as jest.Mock).mockResolvedValue(mockResult);
 
-      const mockReq = { user: mockUser } as RequestWithUser;
+      const mockReq = { user: mockUser } as iRequestWithUser;
 
       const result = await controller.softDelete(id, mockReq);
 

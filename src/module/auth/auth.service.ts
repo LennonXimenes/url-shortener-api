@@ -49,6 +49,7 @@ export class AuthService {
       new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
     );
 
+    // <-- Retornando também o objeto user aqui, como esperado no teste
     return {
       access_token,
       refresh_token,

@@ -16,13 +16,13 @@ import { JwtAuthGuard } from "src/module/auth/jwt-auth.guard";
 import { UpdateUrlDto } from "./dto/update-url.dto";
 import { CreateUrlDto } from "./dto/create-url.dto";
 import { OptionalJwtInterceptor } from "src/module/auth/optional-jwt.interceptor";
-import { RequestWithUser } from "src/common/types/request-with-user";
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
 } from "@nestjs/swagger";
+import { iRequestWithUser } from "src/common/types/request-with-user";
 
 @Controller("url")
 export class UrlController {
@@ -33,7 +33,7 @@ export class UrlController {
   @ApiResponse({ status: 201, description: "URL created successfully." })
   @ApiResponse({ status: 400, description: "Invalid input." })
   @Post()
-  async create(@Body() body: CreateUrlDto, @Req() req: RequestWithUser) {
+  async create(@Body() body: CreateUrlDto, @Req() req: iRequestWithUser) {
     return this.service.create(body, req.user?.userId!);
   }
 
@@ -47,7 +47,7 @@ export class UrlController {
   async update(
     @Param("id") id: string,
     @Body() body: UpdateUrlDto,
-    @Req() req: RequestWithUser,
+    @Req() req: iRequestWithUser,
   ) {
     return this.service.update(id, body, req.user?.userId!);
   }
@@ -57,7 +57,7 @@ export class UrlController {
   @ApiOperation({ summary: "Get all URLs by user" })
   @ApiResponse({ status: 200, description: "List of URLs returned." })
   @Get("me")
-  async findAllByUser(@Req() req: RequestWithUser) {
+  async findAllByUser(@Req() req: iRequestWithUser) {
     return this.service.findAllByUser(req.user?.userId!);
   }
 
@@ -68,7 +68,7 @@ export class UrlController {
   @ApiResponse({ status: 200, description: "URL deleted successfully." })
   @ApiResponse({ status: 404, description: "URL not found." })
   @Delete(":id/delete")
-  async softDelete(@Param("id") id: string, @Req() req: RequestWithUser) {
+  async softDelete(@Param("id") id: string, @Req() req: iRequestWithUser) {
     return this.service.softDelete(id, req.user?.userId!);
   }
 
