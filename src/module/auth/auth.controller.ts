@@ -13,6 +13,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
 import { ApiBearerAuth, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { RefreshDto } from "./dto/refresh.dto";
 
 @Controller("auth")
 @UseInterceptors(ClassSerializerInterceptor)
@@ -37,7 +38,7 @@ export class AuthController {
   @ApiOperation({ summary: "Refresh JWT token" })
   @ApiResponse({ status: 200, description: "Token refreshed successfully." })
   @Post("refresh")
-  async refresh(@Body() body: { userId: string; refreshToken: string }) {
+  async refresh(@Body() body: RefreshDto) {
     return this.service.refreshToken(body.userId, body.refreshToken);
   }
 
