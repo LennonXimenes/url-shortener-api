@@ -4,9 +4,21 @@ API para encurtamento de URLs com autenticação JWT, contagem de cliques, docum
 
 ## Pré-requisitos
 
-- Node.js v18+
+- Node.js v18.x (LTS) — veja abaixo
 - Docker + Docker Compose
 - PostgreSQL (se não usar o Docker Compose)
+
+### Versão do Node.js
+
+Este projeto **suporta e foi testado com Node.js v18.x (LTS)**.  
+Recomenda-se utilizar exatamente essa versão para garantir compatibilidade com as dependências e evitar falhas na instalação ou execução.
+
+Para gerenciar múltiplas versões do Node.js, você pode usar o [nvm](https://github.com/nvm-sh/nvm):
+
+```bash
+nvm install 18
+nvm use 18
+```
 
 ## Scripts úteis
 
@@ -20,22 +32,23 @@ API para encurtamento de URLs com autenticação JWT, contagem de cliques, docum
 
 Clone o repositório:
 
-```
+```bash
 git clone https://github.com/LennonXimenes/url-shortener-api
 cd url-shortener-api
 ```
 
 Copie o arquivo de exemplo `.env` e configure:
 
-```
+```bash
 cp .env.example .env
+
 # Edite o arquivo .env conforme necessário
 
 ```
 
 Suba o ambiente com Docker Compose:
 
-```
+```bash
 docker-compose up -d
 ```
 
@@ -47,7 +60,7 @@ A API estará disponível em [http://localhost:3000](http://localhost:3000).
 
 Clone o repositório, copie o `.env` e instale dependências:
 
-```
+```bash
 git clone https://github.com/LennonXimenes/url-shortener-api
 cd url-shortener-api
 cp .env.example .env
@@ -56,13 +69,13 @@ npm install
 
 Rode as migrations do banco de dados:
 
-```
+```bash
 npx prisma migrate deploy
 ```
 
 Inicie a aplicação em modo desenvolvimento:
 
-```
+```bash
 npm run start:dev
 ```
 
@@ -105,13 +118,13 @@ Acesse: [http://localhost:3000/api](http://localhost:3000/api)
 
 Execute os testes unitários:
 
-```
+```bash
 npm run test
 ```
 
 Para rodar os testes em modo watch:
 
-```
+```bash
 npm run test:watch
 ```
 

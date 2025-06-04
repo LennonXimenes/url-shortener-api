@@ -10,6 +10,7 @@ import { CreateUrlDto } from "./dto/create-url.dto";
 import { UpdateUrlDto } from "./dto/update-url.dto";
 import { ShortCodeGeneratorService } from "src/common/utils/short-code-generator.service";
 import { ConfigService } from "@nestjs/config";
+import { UrlEntity } from "./entities/url.entity";
 
 @Injectable()
 export class UrlService {
@@ -32,7 +33,7 @@ export class UrlService {
     let exists = await this.repository.findUrlShortCode(shortCode);
     while (exists) {
       shortCode = this.shortCodeGenerator.generate();
-      exists = await this.repository.findByShortCode(shortCode);
+      exists = await this.repository.findUrlShortCode(shortCode);
     }
 
     const data = {
@@ -45,49 +46,60 @@ export class UrlService {
     const baseUrl =
       this.configService.get<string>("BASE_URL") || "http://localhost";
 
+    const urlEntity = new UrlEntity(createdUrl);
+
     return {
-      ...createdUrl,
-      shortUrl: `${baseUrl}/${createdUrl.shortCode}`,
+      ...urlEntity,
+      shortUrl: `${baseUrl}/${urlEntity.shortCode}`,
     };
   }
 
   async update(id: string, body: UpdateUrlDto, userId: string) {
     const url = await this.repository.findById(id);
 
-    if (!url || url?.deletedAt) {
+    if (!url || url.deletedAt) {
       throw new NotFoundException("URL not found");
     }
 
-    if (!url?.userId || url?.userId !== userId) {
+    if (!url.userId || url.userId !== userId) {
       throw new ForbiddenException("You cannot update this URL");
     }
-    return await this.repository.update(id, body);
+
+    const updated = await this.repository.update(id, body);
+    return new UrlEntity(updated);
   }
 
   async softDelete(id: string, userId: string) {
     const url = await this.repository.findById(id);
 
-    if (!url || url?.deletedAt) {
+    if (!url || url.deletedAt) {
       throw new NotFoundException("URL not found");
     }
 
-    if (!url?.userId || url?.userId !== userId) {
+    if (!url.userId || url.userId !== userId) {
       throw new ForbiddenException("You cannot delete this URL");
     }
 
-    return this.repository.softDelete(id, userId);
+    const deleted = await this.repository.softDelete(id, userId);
+    return new UrlEntity(deleted);
   }
 
   async findAllByUser(userId: string) {
-    return await this.repository.findAllByUser(userId);
+    const list = await this.repository.findAllByUser(userId);
+    return list.map((item) => new UrlEntity(item));
   }
 
   async findUrlShortCode(shortCode: string) {
-    return await this.repository.findUrlShortCode(shortCode);
+    const url = await this.repository.findUrlShortCode(shortCode);
+    if (!url) {
+      throw new NotFoundException("Short URL not found");
+    }
+    return new UrlEntity(url);
   }
 
   async incrementClickCount(shortCode: string) {
-    return await this.repository.incrementClickCount(shortCode);
+    const updated = await this.repository.incrementClickCount(shortCode);
+    return new UrlEntity(updated);
   }
 
   async handleRedirect(shortCode: string): Promise<string> {
